@@ -8,7 +8,7 @@ sudo apt-get -qq install libfreetype6-dev liblcms2-dev python-tk\
                          cmake imagemagick libharfbuzz-dev libfribidi-dev
 
 PYTHONOPTIMIZE=0 pip install cffi
-pip install coverage
+pip install --pre "coverage>=5.0b1"
 pip install olefile
 pip install -U pytest
 pip install -U pytest-cov
