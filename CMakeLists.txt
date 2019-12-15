@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(STRINGS src/PIL/_version.py _pillow_version_str REGEX "__version__ = '[0-9.]+'")
-string(REGEX REPLACE "__version__ = '([0-9.]+).*$" "//1" PILLOW_VERSION ${_pillow_version_str})
-unset(_pillow_version_str)
-
 project(pillow VERSION 6.2.1 LANGUAGES C)
 
 find_package(python REQUIRED NO_MODULE)
@@ -151,7 +147,7 @@ addPythonExtension(_imaging
     libjpeg-turbo::jpeg-static
     zlib::zlibstatic
   MACROS
-    PILLOW_VERSION="${PILLOW_VERSION}"
+    PILLOW_VERSION="${PROJECT_VERSION}"
     HAVE_LIBZ
     HAVE_LIBJPEG
 )
