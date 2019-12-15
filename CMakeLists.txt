@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-file(STRINGS src/PIL/version.py _pillow_version_str REGEX "__version__ = '[0-9.]+'")
+file(STRINGS src/PIL/_version.py _pillow_version_str REGEX "__version__ = '[0-9.]+'")
 string(REGEX REPLACE "__version__ = '([0-9.]+).*$" "//1" PILLOW_VERSION ${_pillow_version_str})
 unset(_pillow_version_str)
 
