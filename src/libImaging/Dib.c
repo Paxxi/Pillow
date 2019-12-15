@@ -30,6 +30,9 @@
 char*
 ImagingGetModeDIB(int size_out[2])
 {
+#ifdef MS_APP
+    return "RGB";
+#else
     /* Get device characteristics */
 
     HDC dc;
@@ -52,12 +55,17 @@ ImagingGetModeDIB(int size_out[2])
     DeleteDC(dc);
 
     return mode;
+#endif
 }
 
 
 ImagingDIB
 ImagingNewDIB(const char *mode, int xsize, int ysize)
 {
+#ifdef MS_APP
+    Py_INCREF(Py_NotImplemented);
+    return (ImagingDIB)Py_NotImplemented;
+#else
     /* Create a Windows bitmap */
 
     ImagingDIB dib;
@@ -213,6 +221,7 @@ ImagingNewDIB(const char *mode, int xsize, int ysize)
     }
 
     return dib;
+#endif
 }
 
 void
@@ -232,16 +241,19 @@ ImagingPasteDIB(ImagingDIB dib, Imaging im, int xy[4])
 void
 ImagingExposeDIB(ImagingDIB dib, void *dc)
 {
+#ifdef MS_DESKTOP
     /* Copy bitmap to display */
 
     if (dib->palette != 0)
         SelectPalette((HDC) dc, dib->palette, FALSE);
     BitBlt((HDC) dc, 0, 0, dib->xsize, dib->ysize, dib->dc, 0, 0, SRCCOPY);
+#endif
 }
 
 void
 ImagingDrawDIB(ImagingDIB dib, void *dc, int dst[4], int src[4])
 {
+#ifdef MS_DESKTOP
     /* Copy bitmap to printer/display */
 
     if (GetDeviceCaps((HDC) dc, RASTERCAPS) & RC_STRETCHDIB) {
@@ -257,11 +269,15 @@ ImagingDrawDIB(ImagingDIB dib, void *dc, int dst[4], int src[4])
                    dib->dc, src[0], src[1], src[2]-src[0], src[3]-src[1],
                    SRCCOPY);
     }
+#endif
 }
 
 int
 ImagingQueryPaletteDIB(ImagingDIB dib, void *dc)
 {
+#ifdef MS_APP
+    return 0;
+#else
     /* Install bitmap palette */
 
     int n;
@@ -279,11 +295,13 @@ ImagingQueryPaletteDIB(ImagingDIB dib, void *dc)
         n = 0;
 
     return n; /* number of colours that was changed */
+#endif
 }
 
 void
 ImagingDeleteDIB(ImagingDIB dib)
 {
+#ifdef MS_DESKTOP
     /* Clean up */
 
     if (dib->palette)
@@ -295,6 +313,7 @@ ImagingDeleteDIB(ImagingDIB dib)
     if (dib->dc)
         DeleteDC(dib->dc);
     free(dib->info);
+#endif
 }
 
 #endif /* _WIN32 */

@@ -44,6 +44,31 @@ typedef struct {
 
 static PyTypeObject ImagingMapperType;
 
+static wchar_t* to_utf16(const char* str, size_t length)
+{
+    if (length == 0)
+        length = strlen(str);
+
+    int result = MultiByteToWideChar(CP_UTF8, 0, str, length, NULL, 0);
+    if (result == 0)
+        return NULL;
+
+    length = result + 1;
+    wchar_t* dirPath = malloc(length * 2);
+    result = MultiByteToWideChar(CP_UTF8, 0, str, result, dirPath, length);
+
+    if (result == 0)
+    {
+        free(dirPath);
+        return NULL;
+    }
+
+    if (dirPath[length - 1] != '\0')
+        dirPath[length - 1] = '\0';
+
+    return dirPath;
+}
+
 ImagingMapperObject*
 PyImaging_MapperNew(const char* filename, int readonly)
 {
@@ -64,20 +89,31 @@ PyImaging_MapperNew(const char* filename, int readonly)
     mapper->hMap  = (HANDLE)-1;
 
     /* FIXME: currently supports readonly mappings only */
-    mapper->hFile = CreateFile(
-        filename,
+    wchar_t* filenameW = to_utf16(filename, -1);
+#ifdef MS_APP
+    mapper->hFile = CreateFile2(
+        filenameW,
+        GENERIC_READ,
+        FILE_SHARE_READ,
+        OPEN_EXISTING,
+        NULL);
+#else
+    mapper->hFile = CreateFileW(
+        filenameW,
         GENERIC_READ,
         FILE_SHARE_READ,
         NULL, OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL,
         NULL);
+#endif
+    free(filenameW);
     if (mapper->hFile == (HANDLE)-1) {
         PyErr_SetString(PyExc_IOError, "cannot open file");
         Py_DECREF(mapper);
         return NULL;
     }
 
-    mapper->hMap = CreateFileMapping(
+    mapper->hMap = CreateFileMappingW(
         mapper->hFile, NULL,
         PAGE_READONLY,
         0, 0, NULL);
@@ -93,7 +129,7 @@ PyImaging_MapperNew(const char* filename, int readonly)
         FILE_MAP_READ,
         0, 0, 0);
 
-    mapper->size = GetFileSize(mapper->hFile, 0);
+    mapper->size = GetFileSizeEx(mapper->hFile, 0);
 #endif
 
     return mapper;

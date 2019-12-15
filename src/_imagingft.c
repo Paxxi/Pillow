@@ -161,7 +161,11 @@ setraqm(void)
         p_raqm.raqm = dlopen("libraqm.dylib", RTLD_LAZY);
     }
 #else
+#ifdef MS_APP
+    p_raqm.raqm = LoadPackagedLibrary(L"libraqm", 0);
+#else
     p_raqm.raqm = LoadLibrary("libraqm");
+#endif
 #endif
 
     if (!p_raqm.raqm) {
