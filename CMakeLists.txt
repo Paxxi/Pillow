@@ -23,7 +23,7 @@ function(addPythonExtension name)
   target_compile_options(${name} PRIVATE /sdl- /MP)
   target_link_libraries(${name}
     PRIVATE
-      python::pythoncore
+      python::python
       $<$<CONFIG:Debug>:vccorlibd.lib>
       $<$<CONFIG:RelWithDebInfo>:vccorlib.lib>
       $<$<CONFIG:Debug>:msvcrtd.lib>
