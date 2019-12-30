@@ -21,6 +21,12 @@ function(addPythonExtension name)
   target_include_directories(${name} PRIVATE $<BUILD_INTERFACE:${addPythonExtension_INCLUDES};${CMAKE_CURRENT_SOURCE_DIR}/src/libImaging/>)
   target_compile_definitions(${name} PRIVATE ${addPythonExtension_MACROS})
   target_compile_options(${name} PRIVATE /sdl- /MP)
+  if(NOT WINDOWS_STORE)
+    target_link_libraries(${name}
+      PRIVATE
+        gdi32.lib
+    )
+  endif()
   target_link_libraries(${name}
     PRIVATE
       python::python
